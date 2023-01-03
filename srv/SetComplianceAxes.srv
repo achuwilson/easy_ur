@@ -1,0 +1,8 @@
+bool x
+bool y
+bool z
+bool rx
+bool ry
+bool rz
+---
+bool result
