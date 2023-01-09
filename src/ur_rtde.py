@@ -25,6 +25,9 @@ print("RTDE Connected to UR at ", ROBOT_IP, " : ", rtde_c.isConnected())
 MODE = "POSITION"
 speed=0.6#0.15
 acceleration= 0.35
+speed_j = 1.04 #joint speed used in joint control
+acceleration_j = 1.4 #joint acceleration used in joint control
+
 wrench_frame = [0, 0, 0, 0, 0, 0] #pose  vector that defines the force frame relative to the base frame.
 compliance_axes = [0, 0, 0, 0, 0, 0]
 wrench_type = 2 #The force frame is not transformed
@@ -141,6 +144,23 @@ def set_acceleration(req):
     return SetAccelerationResponse(
         result=True
     )
+def set_joint_speed(req):
+    global speed_j
+    speed_j = req.speed
+    #TODO - Sanity check of values
+    #print("speed joinset" ,speed)
+    return SetSpeedResponse(
+        result=True
+    )
+
+def set_joint_acceleration(req):
+    global acceleration_j
+    acceleration_j = req.acceleration
+    #TODO - Sanity check of values
+    #print("speed accelerations " ,acceleration)
+    return SetAccelerationResponse(
+        result=True
+    )
 def set_wrench_frame(req):
     global wrench_frame
     #TODO
@@ -160,9 +180,6 @@ def set_compliance_limits(req):
     )
 
 def set_pose(req):
-    print("SET POSE CALLED ", req.p.position.x,req.p.position.y, req.p.position.z)
-    print("ORN ",req.p.orientation.x,req.p.orientation.y, req.p.orientation.z,req.p.orientation.w )
-
     global speed, MODE, acc
     if(MODE=="FORCE"):
         rtde_c.forceModeStop()
@@ -172,16 +189,25 @@ def set_pose(req):
         print("Change mode from TEACH mode to POS mode")
         return None
     MODE = "POSITION"
-    pos=[req.p.position.x,req.p.position.y, req.p.position.z]
+    pos=[req.pose.position.x,req.pose.position.y, req.pose.position.z]
     #print(pos)
-    quat = [req.p.orientation.x,req.p.orientation.y, req.p.orientation.z,req.p.orientation.w ]
+    quat = [req.pose.orientation.x,req.pose.orientation.y, req.pose.orientation.z,req.pose.orientation.w ]
     r= R.from_quat(quat)
     r=r.as_rotvec()
     pos.extend(r)
-    status = rtde_c.moveL(pos, speed, acceleration,asynchronous=False)
-
-
+    if(req.async):
+        status = rtde_c.moveL(pos, speed, acceleration,asynchronous=True)
+    else:
+        status = rtde_c.moveL(pos, speed, acceleration,asynchronous=False)
     return SetPoseResponse(result=status)
+
+def set_joints(req):
+    if(req.async):
+        status = rtde_c.moveJ(list(req.q.data), speed_j, acceleration_j,asynchronous=True)
+    else:
+        status = rtde_c.moveJ(list(req.q.data), speed_j, acceleration_j,asynchronous=False)
+    return SetJointsResponse(result=status)
+
 def pub():
     global pos_seq, wrench_seq
     rate = rospy.Rate(500)
@@ -218,7 +244,7 @@ def pub():
 
         rate.sleep()
 def callback_joint(msg):
-    rtde_c.moveJ(msg.data, speed, acceleration,asynchronous=True)
+    rtde_c.moveJ(msg.data, speed_j, acceleration_j,asynchronous=True)
 
 if __name__ == '__main__':
     my_service0 = rospy.Service('/ur_mode', SetMode, set_controlmode)
@@ -228,6 +254,10 @@ if __name__ == '__main__':
     my_service4 = rospy.Service('/ur_compliance_limits', SetComplianceLimits, set_compliance_limits)
     my_service5 = rospy.Service('/ur_acceleration', SetAcceleration, set_acceleration)
     my_service6 = rospy.Service('/ur_pose', SetPose, set_pose)
+    my_service7 = rospy.Service('/set_ur_joints', SetJoints, set_joints)
+    my_service8 = rospy.Service('/set_ur_joint_acceleration', SetAcceleration, set_joint_acceleration)
+    my_service9 = rospy.Service('/set_ur_joint_speed', SetSpeed, set_joint_speed)
+
     #TODO -  add custom wrench frame service types
     #my_service5 = rospy.Service('/ur_wrench_frame', SetWrenchFrame, set_wrench_frame)
     rospy.Subscriber('/target_frame', PoseStamped, callback_pos)
