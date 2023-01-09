@@ -1,0 +1,4 @@
+std_msgs/Float64MultiArray q
+bool async
+---
+bool result

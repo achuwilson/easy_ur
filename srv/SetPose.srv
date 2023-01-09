@@ -1,3 +1,4 @@
-geometry_msgs/Pose p
+geometry_msgs/Pose pose
+bool async
 ---
 bool result
