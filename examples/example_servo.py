@@ -16,7 +16,7 @@ rospy.init_node("example_servo")
 cur_pos = PoseStamped()
 servo_msg  = PoseStamped()
 
-servo_pub = rospy.Publisher('target_servo',PoseStamped, queue_size = 1)
+servo_pub = rospy.Publisher('/target_servo',PoseStamped, queue_size = 1)
 servo_msg.header.frame_id = "base_link"
 servo_seq = 0
 
@@ -54,6 +54,7 @@ def servo_pos(pos, orn):
     servo_msg.header.seq = servo_seq
     servo_seq+=1
     servo_msg.header.stamp = rospy.get_rostime()
+
     servo_pub.publish(servo_msg)
 
 def callback_pos(msg):
@@ -126,6 +127,7 @@ def run_demo():
     while step_count<num_points:
 
         servo_pos(lin_path[step_count],start_orn)
+        print("servo move ", step_count)
         #if (ft_z< -15):
         #    print("FT ", ft_z)
         #   rospy.sleep(t_delay)
