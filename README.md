@@ -48,7 +48,7 @@ After starting `roscore`, run the following to start connection with the robot
 ```
 python3 easy_ur/src/ur_rtde.py
 ```
-This ROS node will start communication between the PC and robot using RTDE and expose the data and control streams as ROS topics and services listed below.
+This ROS node will start communication between the PC and robot using RTDE and expose the data and control streams as ROS topics and services.
 
 
 
@@ -91,6 +91,58 @@ next_q[5] = next_q[5] + math.radians(20)
 
 #set joint positions and move robot
 robot.set_joint_positions(next_q)
+
+```
+
+### Example servoing
+
+Servoing mode enables to send end effector poses in real-time to the robot controller.
+This poses are then used in the high speed internal control loop of the robot. 
+
+Play around with the `t_delay` (should be less than 0.1s to keep up with the robot controller) and `interp_distance` to get more intuition. 
+
+```python
+from easyUR import UR
+
+#initialize the robot object
+robot=UR()
+
+#get current pos
+current_position, current_orientation = robot.get_pose()
+#increment x axis by 10 mm
+next_position = [current_position[0]+0.1, current_position[1], current_position[2]]
+
+#estimate distance between the start and end points
+dist = np.linalg.norm(np.array(current_position)-np.array(next_position))
+
+#calculate the number of points between start and end points
+#  using an interpolation distance of 0.5mm
+interp_distance = 0.00055
+num_points = int(dist/interp_distance)
+
+#generate a linear trajectory of points which are spread apart at interpolation distance
+# between the start and end points
+lin_path = np.linspace(current_position,next_position,num_points)
+
+step_count=0
+t_delay=0.05
+print("Num_points Servo= ", num_points)
+
+while step_count<num_points:
+	#send comands to the robot
+    robot.servo(lin_path[step_count],current_orientation)
+	#wait for the robot control loop to catch up
+    time.sleep(t_delay)
+    step_count=step_count+1
+
+    print("servo move ", step_count)
+	#this can be any condition ( like an external sensor interrupt)
+	#here we are  stopping before the full execution of the trajectory
+
+    if(step_count==120):
+        time.sleep(t_delay)# use delay before breaking
+        print("breaking")
+        break
 
 ```
 ### GUI tools.
