@@ -36,13 +36,13 @@ python3 easy_ur/src/ur_rtde.py
 ```
 This ROS node will start communication between the PC and robot using RTDE and expose the data and control streams as ROS topics and services listed below.
 
-### Published topics
+#### Published topics
 	- ur_pose - PosStamped 
 	- ur_joints
-### Subscribed topics
+#### Subscribed topics
 	- ur_servo_cmd
 
-### Services
+#### Services
 	- ur_mode_cmd
 	- ur_speed_cmd
 	- ur_stop_cmd
