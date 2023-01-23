@@ -1,9 +1,16 @@
 # easy_ur
 
-easy_ur is a ROS package to control Universal Robots in a very simple, yet allowing for . (tested on UR5e, should work on any UR robots that support RTDE communication)  
+easy_ur is a ROS package to control Universal Robots in a very simple, yet allowing for very flexible control. (tested on UR5e, should work on any UR robots that support RTDE communication)
+
+Even though easy_ur runs in ROS, it does not use the UR_ROS_Driver nor Moveit for motion control.
+
+The node comminicates with robot hardware using the Real-Time Data Exchange (RTDE) Interface. The inverse kinematics, dynamics, trajectory generation and interpolation is handled inside the UR robot itself. This reduces the complexity on the remote PC side but requires the Payload, TCP etc to be properly set in PolyScope. 
+
+It is also flexible enough to do interpolation and generate custom trajectories in the PC and then send it to the robot in real time. This can come handy in sitations such as servoing control, or integrating robot motion in a closed loop control with some other sensors.
+
 
 ## Installation
-[ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) - for controlling and receiving data from the robot using the Real-Time Data Exchange (RTDE) Interface
+[ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) - for controlling and receiving data from the robot using the RTDE Interface
 
 ```
 pip3 install ur_rtde
@@ -27,12 +34,15 @@ Clone this package into your workspace, and catkin_make it
 
 ## Usage
 Make sure you have setup the UR robot correctly. This includes
+
 	- Setting the Payload in Polyscope
 	- Setting the End Effector TCP in Polyscope
 	- Enabling the Remote Control mode.
 	- Setting up the network, IP addresses etc
 
-Set the UR robot into **Remote Control** mode from the Teach pendant
+Set the UR robot into **Remote Control** mode from the top right corner of the Teach pendant as in following image:
+
+![Remote Control Mode](images/img1.png)
 
 After starting `roscore`, run the following to start connection with the robot
 ```
