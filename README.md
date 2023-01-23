@@ -26,9 +26,13 @@ pip3 install rospkg
 Clone this package into your workspace, and catkin_make it
 
 ## Usage
-Make sure you have setup the UR robot correctly.
+Make sure you have setup the UR robot correctly. This includes
+	- Setting the Payload in Polyscope
+	- Setting the End Effector TCP in Polyscope
+	- Enabling the Remote Control mode.
+	- Setting up the network, IP addresses etc
 
-Set the UR robot into remote control mode from the Teach pendant
+Set the UR robot into **Remote Control** mode from the Teach pendant
 
 After starting `roscore`, run the following to start connection with the robot
 ```
@@ -56,6 +60,25 @@ This ROS node will start communication between the PC and robot using RTDE and e
 You can either use these topics/ services to control the robot using ROS, or use the simplified [`examples/easyUR.py`](examples/easyUR.py) which has all the helper functions in either ROS or your Python scripts.
 
 See [`examples/examples.py`](examples/examples.py) for more detailed usage.
+
+### Example Move end effector
+
+```python
+from easyUR import UR
+
+#initialize the robot object
+robot=UR()
+
+#get the current position(in meters) and orientation ( in quaternion in order x,y,z,w)
+current_position, current_orientation = robot.get_pose()
+
+#increment x axis by 5 mm
+next_position = [current_position[0]+0.05, current_position[1], current_position[2]]
+
+#move the robot
+robot.set_pose(next_position, current_orientation)
+
+```
 
 ### GUI tools.
 
