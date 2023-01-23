@@ -147,7 +147,7 @@ while step_count<num_points:
 ```
 ### GUI tools.
 
-The robot can also be controlled using the GUI  by running
+The robot can also be controlled simultaneously using the GUI by running
 
 ```
 python3 easyGUI.py
@@ -159,6 +159,33 @@ The end effector position, individual joint positions and the Free Drive mode ca
 ### API
 
 #### easyUR.py
+
+##### UR() class
+
+##### set_pose(pose, orn, async=False)
+
+##### get_pose()
+
+##### set_ee_speed(speed):
+
+##### set_ee_acceleration(acceleration):
+
+##### set_joint_speed(speed):
+
+##### set_joint_acceleration(acceleration):
+
+##### get_joint_positions()
+
+##### set_joint_positions(joint_cmd, async=False):
+
+##### stop()
+
+##### set_mode(mode)
+
+##### freedrive(val)
+
+##### servo(pos, orn)
+
 
 #### ur_rtde.py
 
