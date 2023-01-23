@@ -8,6 +8,8 @@ The node comminicates with robot hardware using the Real-Time Data Exchange (RTD
 
 It is also flexible enough to do interpolation and generate custom trajectories on the PC and then send it to the robot in real time. This can come handy in sitations such as servoing control, or integrating robot motion in a closed loop control with some other sensors.
 
+The GUI allows for intuitive control of TCP, joints as well as Free Drive mode.
+![GUI](images/gui.png)
 
 ## Installation
 [ur_rtde](https://gitlab.com/sdurobotics/ur_rtde) - for controlling and receiving data from the robot using the RTDE Interface
