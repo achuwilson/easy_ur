@@ -12,38 +12,69 @@ current_position, current_orientation = robot.get_pose()
 
 print("current robot position :",current_position)
 print("current robot orientation :",current_orientation)
-
+#increment x axis
 next_position = [current_position[0]+0.05, current_position[1], current_position[2]]
+#move to position
 robot.set_pose(next_position, current_orientation)
+#move asyncronously -  it returns control immediately and doesnt wait until
+#you reach the position -  you can use
 robot.set_pose(current_position, current_orientation, async = True)
-time.sleep(4)
+time.sleep(1.0)
+#during asynchronous move, you can stop robot motion in between
 robot.stop()
 
-
-robot.set_ee_speed(0.1)
-robot.set_ee_acceleration(0.5)
+#set end effector speed and acceleration to a low value and move
+#values are in m/s and m/s2
+print("LOW SPEED EE MOVE")
+robot.set_ee_speed(0.05)
+robot.set_ee_acceleration(0.2)
 robot.set_pose(next_position, current_orientation)
 robot.set_pose(current_position, current_orientation)
 
+#set end effector speed and acceleration to a high value and move
+print("HIGH SPEED EE MOVE")
 robot.set_ee_speed(0.5)
 robot.set_ee_acceleration(1.5)
 robot.set_pose(next_position, current_orientation)
 robot.set_pose(current_position, current_orientation)
 
+##set end effector speed and acceleration to a low value
 robot.set_ee_speed(0.1)
 robot.set_ee_acceleration(0.5)
 
 ################## JOINT CONTROL ##########################
-print("JOINT CONTROL MODE ON")
+print("JOINT CONTROL MODE")
+#get the joint positions
 joint_poses = robot.get_joint_positions()
 print("Current joint positions", joint_poses)
-
+#increment the last axis
 next_q = joint_poses
 next_q[5] = next_q[5] + math.radians(20)
-robot.set_joint_positions(next_q, async=True)
-time.sleep(4)
-next_q[5] = next_q[5] - math.radians(20)
+#set joint positions
 robot.set_joint_positions(next_q)
+next_q[5] = next_q[5] - math.radians(20)
+robot.set_joint_positions(next_q, async=True)
+time.sleep(1.0)
+#during asynchronous move, you can stop robot motion in between
+robot.stop()
+
+#joint speed control
+print("LOW SPEED JOINT MOVE")
+#values are in radians/s and radians/s2
+robot.set_joint_speed(0.1)
+robot.set_joint_acceleration(0.5)
+#increment the last axis
+next_q = joint_poses
+next_q[5] = next_q[5] + math.radians(20)
+#set joint positions
+robot.set_joint_positions(next_q)
+next_q[5] = next_q[5] - math.radians(20)
+robot.set_joint_positions(next_q, async=True)
+time.sleep(1.0)
+#during asynchronous move, you can stop robot motion in between
+robot.stop()
+
+
 
 ################## FREEDRIVE MODE ##############################
 

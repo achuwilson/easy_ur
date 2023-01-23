@@ -25,39 +25,29 @@ class UR:
         self.servo_msg.header.frame_id = "base_link"
         self.servo_seq = 0
 
-        #ur robot stuff
-        #rospy.wait_for_service('/ur_stop_cmd')
-        #self.stop_service = rospy.ServiceProxy('/ur_stop_cmd', Trigger)
-        #self.trigger =  TriggerRequest()
-
         rospy.sleep(0.1)
-
 
         rospy.Subscriber("/ur_joints", Float64MultiArray, self.callback_joint_pos)
         rospy.Subscriber('/ur_pose', PoseStamped, self.callback_ee_pos)
         rospy.sleep(0.1)
-        #rospy.Rate(100)
-        rate = rospy.Rate(200)
-        #while not rospy.is_shutdown():
-        #rate.sleep()
+
         self.exit_event = threading.Event()
         signal.signal(signal.SIGINT, self.signal_handler)
         th = threading.Thread(target=self.thread_function)
         th.daemon=True
         th.start()
-        #th.join()
         print("started thread")
+
     def thread_function(self):
+        rate = rospy.Rate(200)
         while(rospy.is_shutdown()==False):
-            #print("run run run ", time.time())
             if self.exit_event.is_set():
                 break
             else:
                 rate.sleep()
-                #continue
+
     def signal_handler(self,signum, frame):
         self.exit_event.set()
-
 
     def callback_ee_pos(self,msg):
         #print("callback called 1 ", time.time(), msg.pose.position.x)
@@ -86,15 +76,8 @@ class UR:
         except:
             print("Set Pose failed")
             return False
+
     def get_pose(self):
-        #print("getting pose")
-        #self.cur_pos = rospy.wait_for_message('/ur_pose', PoseStamped, timeout=None)
-        #print(self.cur_pos)
-        #rospy.sleep(0.2)
-
-
-
-
         return([self.cur_pos.pose.position.x,
                 self.cur_pos.pose.position.y,
                 self.cur_pos.pose.position.z],
@@ -122,9 +105,30 @@ class UR:
         except:
             print("Set Acceleration Failed")
             return False
+    
+     def set_joint_speed(self, speed):
+        rospy.wait_for_service('/ur_joint_speed_cmd')
+        try:
+            service = rospy.ServiceProxy('/ur_joint_speed_cmd', SetSpeed)
+            ret = service(speed)
+            return ret.result
+        except:
+            print("Set Joint Speed Failed")
+            return False
+
+    def set_joint_acceleration(self, acceleration):
+        rospy.wait_for_service('/ur_joint_acceleration_cmd')
+        try:
+            service = rospy.ServiceProxy('/ur_joint_acceleration_cmd', SetAcceleration)
+            ret = service(acceleration)
+            return ret.result
+        except:
+            print("Set Joint Acceleration Failed")
+            return False
 
     def get_joint_positions(self):
         return list(self.cur_joint_pos)
+
     def set_joint_positions(self,joint_cmd, async=False):
         rospy.wait_for_service("/ur_joints_cmd")
         try:
@@ -136,6 +140,7 @@ class UR:
         except:
             print("Set Joints failed")
             return False
+
     def stop(self):
         rospy.wait_for_service("/ur_stop_cmd")
         try:
@@ -146,6 +151,7 @@ class UR:
         except:
             print("STOP Failed")
             return False
+
     def set_mode(self, mode):
         rospy.wait_for_service('/ur_mode_cmd')
         try:
@@ -157,16 +163,17 @@ class UR:
         except:
             print("setmode failed")
             return False
+
     def freedrive(self, val):
         if(val):
             ret = self.set_mode("FREEDRIVE")
         else:
             ret = self.set_mode("POSITION")
+
     def servo(self, pos, orn):
         self.servo_msg.pose.position.x,self.servo_msg.pose.position.y,self.servo_msg.pose.position.z = pos
         self.servo_msg.pose.orientation.x,self.servo_msg.pose.orientation.y,self.servo_msg.pose.orientation.z,self.servo_msg.pose.orientation.w =orn
         self.servo_msg.header.seq = self.servo_seq
         self.servo_seq+=1
         self.servo_msg.header.stamp = rospy.get_rostime()
-
         self.servo_pub.publish(self.servo_msg)
