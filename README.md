@@ -50,8 +50,11 @@ python3 easy_ur/src/ur_rtde.py
 ```
 This ROS node will start communication between the PC and robot using RTDE and expose the data and control streams as ROS topics and services.
 
+NOTE: `ur_rtde.py` expects the robot to have the IP address `192.168.1.12`. If the UR robot has another IP, it can be passed as an argument with `--ip` as follows
 
-
+```
+python3 easy_ur/src/ur_rtde.py --ip 192.168.1.12
+```
 The [`examples/easyUR.py`](examples/easyUR.py) library has the UR class and helper functions to  communicate with these ROS topics/services.
 
 See [`examples/examples.py`](examples/examples.py) for more detailed usage.

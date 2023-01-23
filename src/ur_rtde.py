@@ -11,9 +11,17 @@ from scipy.spatial.transform import Rotation as R
 from easy_ur.srv import SetSpeed, SetMode, SetAcceleration, SetPose#, SetSpeedResponse
 from easy_ur.srv import *
 
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--ip", default = "192.168.1.12")
+args = parser.parse_args()
+
+print(" Trying to connect to Robot at IP:  ", args.ip)
 
 rospy.init_node("UR_RTDE")
-ROBOT_IP = "192.168.1.12"
+
+ROBOT_IP = args.ip
 rtde_c = rtde_control.RTDEControlInterface(ROBOT_IP)
 rtde_r = rtde_receive.RTDEReceiveInterface(ROBOT_IP)
 
