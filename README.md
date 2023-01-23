@@ -102,7 +102,7 @@ robot.set_joint_positions(next_q)
 Servoing mode enables to send end effector poses in real-time to the robot controller.
 This poses are then used in the high speed internal control loop of the robot. 
 
-Play around with the `t_delay` (should be less than 0.1s to keep up with the robot controller) and `interp_distance` to get more intuition. 
+ 
 
 ```python
 from easyUR import UR
@@ -128,7 +128,7 @@ num_points = int(dist/interp_distance)
 lin_path = np.linspace(current_position,next_position,num_points)
 
 step_count=0
-t_delay=0.05
+t_delay=1.0/500.0 # 500 Hz control loop
 print("Num_points Servo= ", num_points)
 
 while step_count<num_points:

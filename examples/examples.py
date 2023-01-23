@@ -100,14 +100,15 @@ num_points = int(dist/0.00055)
 lin_path = np.linspace(current_position,next_position,num_points)
 
 step_count=0
-t_delay=0.05
+t_delay=1.0/500.0 # 500 Hz control loop
+
 print("Num_points Servo= ", num_points)
 while step_count<num_points:
     robot.servo(lin_path[step_count],current_orientation)
     time.sleep(t_delay)
     step_count=step_count+1
     print("servo move ", step_count)
-    if(step_count==150):
+    if(step_count==120):
         time.sleep(t_delay)# use delay before breaking
         print("breaking")
         break
