@@ -37,7 +37,7 @@ python3 easy_ur/src/ur_rtde.py
 This ROS node will start communication between the PC and robot using RTDE and expose the data and control streams as ROS topics and services listed below.
 
 #### Published topics
-	- ur_pose - PosStamped 
+	- ur_pose 
 	- ur_joints
 #### Subscribed topics
 	- ur_servo_cmd
@@ -66,4 +66,4 @@ python3 easyGUI.py
 ```
 ![GUI](images/easygui.png)
 
-The end effector position, individual joint positions and the Free Drive mode can be controlled from the GUI running simultaneously. 
+The end effector position, individual joint positions and the Free Drive mode can be controlled from the GUI running simultaneously. It also displays the current end effector position, orientation ( in intuitive Euler angles as well as quaternions) and joint positions.
