@@ -160,31 +160,31 @@ The end effector position, individual joint positions and the Free Drive mode ca
 
 #### easyUR.py
 
-##### UR() class
+##### `UR()` class
 
-##### set_pose(pose, orn, async=False)
+##### `set_pose(pose, orn, async=False)`
 
-##### get_pose()
+##### `get_pose()`
 
-##### set_ee_speed(speed):
+##### `set_ee_speed(speed)`
 
-##### set_ee_acceleration(acceleration):
+##### `set_ee_acceleration(acceleration)`
 
-##### set_joint_speed(speed):
+##### `set_joint_speed(speed)`
 
-##### set_joint_acceleration(acceleration):
+##### `set_joint_acceleration(acceleration)`
 
-##### get_joint_positions()
+##### `get_joint_positions()`
 
-##### set_joint_positions(joint_cmd, async=False):
+##### `set_joint_positions(joint_cmd, async=False)`
 
-##### stop()
+##### `stop()`
 
-##### set_mode(mode)
+##### `set_mode(mode)`
 
-##### freedrive(val)
+##### `freedrive(val)`
 
-##### servo(pos, orn)
+##### `servo(pos, orn)`
 
 
 #### ur_rtde.py
