@@ -63,6 +63,7 @@ add_service_files(
    SetComplianceLimits.srv
    SetAcceleration.srv
    SetPose.srv
+   SetJoints.srv
  )
 
 ## Generate actions in the 'action' folder

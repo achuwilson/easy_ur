@@ -42,12 +42,12 @@ pos_msg.header.frame_id = "base_link"
 pos_seq = 0
 
 #data structure for publishing wrench_msg
-wrench_pub = rospy.Publisher('ur_wrench',WrenchStamped, queue_size = 1)
-wrench_msg = WrenchStamped()
-wrench_msg.header.frame_id = "base_link"
-wrench_seq = 0
+#wrench_pub = rospy.Publisher('ur_wrench',WrenchStamped, queue_size = 1)
+#wrench_msg = WrenchStamped()
+#wrench_msg.header.frame_id = "base_link"
+#wrench_seq = 0
 
-q_pub = rospy.Publisher('ur_joints', Float64MultiArray, queue_size=10)
+q_pub = rospy.Publisher('ur_joints', Float64MultiArray, queue_size=1)
 q_msg = Float64MultiArray()
 
 def callback_pos(data):
@@ -57,8 +57,8 @@ def callback_pos(data):
         rtde_c.forceModeStop()
     elif(MODE=="SERVOL"):
         rtde_c.servoStop()
-    elif(MODE=="TEACH"):
-        print("Change mode from TEACH mode to POS mode")
+    elif(MODE=="FREEDRIVE"):
+        print("Change mode from FREEDRIVE mode to POS mode")
         return None
     MODE = "POSITION"
     pos=[data.pose.position.x,data.pose.position.y,data.pose.position.z]
@@ -73,8 +73,8 @@ def callback_servo(data):
     global speed, MODE
     if(MODE=="FORCE"):
         rtde_c.forceModeStop()
-    elif(MODE=="TEACH"):
-        print("Change mode from TEACH mode to SERVO mode")
+    elif(MODE=="FREEDRIVE"):
+        print("Change mode from FREEDRIVE mode to SERVO mode")
         return None
     MODE = "SERVOL"
     pos=[data.pose.position.x,data.pose.position.y,data.pose.position.z]
@@ -96,8 +96,8 @@ def callback_wrench(data):
     global MODE
     if(MODE=="SERVOL"):
         rtde_c.servoStop()
-    elif(MODE=="TEACH"):
-        print("Change mode from TEACH mode to FORCE mode")
+    elif(MODE=="FREEDRIVE"):
+        print("Change mode from FREEDRIVE mode to FORCE mode")
         return None
     MODE="FORCE"
     wrench = [data.wrench.force.x,data.wrench.force.y,data.wrench.force.z, data.wrench.torque.x, data.wrench.torque.y,data.wrench.torque.z]
@@ -106,6 +106,8 @@ def callback_wrench(data):
 def stop_robot(req):
     if(MODE=="POSITION"):
         rtde_c.stopL(0.5)
+    elif(MODE=="JOINT"):
+        rtde_c.stopJ(2.0)
     elif(MODE=="FORCE"):
         rtde_c.forceModeStop()
     print("stop called")
@@ -119,12 +121,14 @@ def set_controlmode(req):
     old_MODE = MODE
     #TODO -  sanity check of MODE values
     MODE=req.mode
-    if (old_MODE=="TEACH") and (MODE!="TEACH"):
-        rtde_c.endTeachMode()
-    if (MODE=="TEACH"):
-        rtde_c.teachMode()
+    if (old_MODE=="FREEDRIVE") and (MODE!="FREEDRIVE"):
+        ret = rtde_c.endTeachMode()
+    if (MODE=="FREEDRIVE"):
+        ret = rtde_c.teachMode()
+    else:
+        ret = rtde_c.endTeachMode()  
     return SetModeResponse(
-        result=True
+        result=ret
     )
 
 def set_speed(req):
@@ -180,13 +184,13 @@ def set_compliance_limits(req):
     )
 
 def set_pose(req):
-    global speed, MODE, acc
+    global speed, MODE, acceleration
     if(MODE=="FORCE"):
         rtde_c.forceModeStop()
     elif(MODE=="SERVOL"):
         rtde_c.servoStop()
-    elif(MODE=="TEACH"):
-        print("Change mode from TEACH mode to POS mode")
+    elif(MODE=="FREEDRIVE"):
+        print("Change mode from FREEDRIVE mode to POS mode")
         return None
     MODE = "POSITION"
     pos=[req.pose.position.x,req.pose.position.y, req.pose.position.z]
@@ -202,6 +206,15 @@ def set_pose(req):
     return SetPoseResponse(result=status)
 
 def set_joints(req):
+    global speed_j, MODE, acceleration_j
+    if(MODE=="FORCE"):
+        rtde_c.forceModeStop()
+    elif(MODE=="SERVOL"):
+        rtde_c.servoStop()
+    elif(MODE=="FREEDRIVE"):
+        print("Change mode from FREEDRIVE mode to POS mode")
+        return None
+    MODE = "JOINT"
     if(req.async):
         status = rtde_c.moveJ(list(req.q.data), speed_j, acceleration_j,asynchronous=True)
     else:
@@ -226,46 +239,47 @@ def pub():
         pos_msg.header.stamp = rospy.get_rostime()
 
 
-        curwrench = rtde_r.getFtRawWrench()
-        rospy.sleep(0.005)
-        wrench_msg.wrench.force.x,wrench_msg.wrench.force.y,wrench_msg.wrench.force.z, wrench_msg.wrench.torque.x,wrench_msg.wrench.torque.y,wrench_msg.wrench.torque.z = curwrench
-        wrench_msg.header.seq = wrench_seq
-        wrench_seq+=1
-        wrench_msg.header.stamp = rospy.get_rostime()
+        #curwrench = rtde_r.getFtRawWrench()
+        #rospy.sleep(0.005)
+        #wrench_msg.wrench.force.x,wrench_msg.wrench.force.y,wrench_msg.wrench.force.z, wrench_msg.wrench.torque.x,wrench_msg.wrench.torque.y,wrench_msg.wrench.torque.z = curwrench
+        #wrench_msg.header.seq = wrench_seq
+        #wrench_seq+=1
+        #wrench_msg.header.stamp = rospy.get_rostime()
 
 
         q_msg.data = rtde_r.getActualQ() # assign the array with the value you want to send
         q_pub.publish(q_msg)
 
 
-        wrench_pub.publish(wrench_msg)
+        #wrench_pub.publish(wrench_msg)
 
         pose_pub.publish(pos_msg)
 
-        rate.sleep()
+        #rate.sleep()
+        continue
 def callback_joint(msg):
     rtde_c.moveJ(msg.data, speed_j, acceleration_j,asynchronous=True)
 
 if __name__ == '__main__':
-    my_service0 = rospy.Service('/ur_mode', SetMode, set_controlmode)
-    my_service1 = rospy.Service('/ur_speed', SetSpeed, set_speed)
-    my_service2 = rospy.Service('/ur_stop', Trigger, stop_robot)
-    my_service3 = rospy.Service('/ur_compliance_axes', SetComplianceAxes, set_compliance_axes)
-    my_service4 = rospy.Service('/ur_compliance_limits', SetComplianceLimits, set_compliance_limits)
-    my_service5 = rospy.Service('/ur_acceleration', SetAcceleration, set_acceleration)
-    my_service6 = rospy.Service('/ur_pose', SetPose, set_pose)
-    my_service7 = rospy.Service('/set_ur_joints', SetJoints, set_joints)
-    my_service8 = rospy.Service('/set_ur_joint_acceleration', SetAcceleration, set_joint_acceleration)
-    my_service9 = rospy.Service('/set_ur_joint_speed', SetSpeed, set_joint_speed)
+    my_service0 = rospy.Service('/ur_mode_cmd', SetMode, set_controlmode)
+    my_service1 = rospy.Service('/ur_speed_cmd', SetSpeed, set_speed)
+    my_service2 = rospy.Service('/ur_stop_cmd', Trigger, stop_robot)
+    #my_service3 = rospy.Service('/ur_compliance_axes', SetComplianceAxes, set_compliance_axes)
+    #my_service4 = rospy.Service('/ur_compliance_limits', SetComplianceLimits, set_compliance_limits)
+    my_service5 = rospy.Service('/ur_acceleration_cmd', SetAcceleration, set_acceleration)
+    my_service6 = rospy.Service('/ur_pose_cmd', SetPose, set_pose)
+    my_service7 = rospy.Service('/ur_joints_cmd', SetJoints, set_joints)
+    my_service8 = rospy.Service('/ur_joint_acceleration_cmd', SetAcceleration, set_joint_acceleration)
+    my_service9 = rospy.Service('/ur_joint_speed_cmd', SetSpeed, set_joint_speed)
 
     #TODO -  add custom wrench frame service types
     #my_service5 = rospy.Service('/ur_wrench_frame', SetWrenchFrame, set_wrench_frame)
-    rospy.Subscriber('/target_frame', PoseStamped, callback_pos)
-    rospy.Subscriber('/target_servo', PoseStamped, callback_servo)
-    rospy.Subscriber('/target_wrench',WrenchStamped, callback_wrench)
-    rospy.Subscriber('/target_joints',Float64MultiArray, callback_joint)
+    #rospy.Subscriber('/target_frame', PoseStamped, callback_pos)
+    rospy.Subscriber('/ur_servo_cmd', PoseStamped, callback_servo)
+    #rospy.Subscriber('/target_wrench',WrenchStamped, callback_wrench)
+    #rospy.Subscriber('/target_joints',Float64MultiArray, callback_joint)
 
     #my_service3 = rospy.Service('/apply_force', Trigger, apply_force)
     #my_service4 = rospy.Service('/apply_forced', Trigger, apply_forced)
     pub()
-    rospy.spin()
+    #rospy.spin()
