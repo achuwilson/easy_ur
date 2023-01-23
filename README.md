@@ -40,28 +40,13 @@ python3 easy_ur/src/ur_rtde.py
 ```
 This ROS node will start communication between the PC and robot using RTDE and expose the data and control streams as ROS topics and services listed below.
 
-#### Published topics
-	- ur_pose 
-	- ur_joints
-#### Subscribed topics
-	- ur_servo_cmd
-
-#### Services
-	- ur_mode_cmd
-	- ur_speed_cmd
-	- ur_stop_cmd
-	- ur_acceleration_cmd
-	- ur_pose_cmd
-	- ur_joints_cmd
-	- ur_joint_acceleration_cmd
-	- ur_joint_speed_cmd
 
 
-You can either use these topics/ services to control the robot using ROS, or use the simplified [`examples/easyUR.py`](examples/easyUR.py) which has all the helper functions in either ROS or your Python scripts.
+The [`examples/easyUR.py`](examples/easyUR.py) library has the UR class and helper functions to  communicate with these ROS topics/services.
 
 See [`examples/examples.py`](examples/examples.py) for more detailed usage.
 
-### Example Move end effector
+### Example move end effector
 
 ```python
 from easyUR import UR
@@ -79,7 +64,25 @@ next_position = [current_position[0]+0.05, current_position[1], current_position
 robot.set_pose(next_position, current_orientation)
 
 ```
+### Example move joints
 
+```python
+from easyUR import UR
+
+#initialize the robot object
+robot=UR()
+
+#get the joint positions
+joint_poses = robot.get_joint_positions()
+
+#increment the last axis
+next_q = joint_poses
+next_q[5] = next_q[5] + math.radians(20)
+
+#set joint positions and move robot
+robot.set_joint_positions(next_q)
+
+```
 ### GUI tools.
 
 The robot can also be controlled using the GUI  by running
@@ -90,3 +93,26 @@ python3 easyGUI.py
 ![GUI](images/easygui.png)
 
 The end effector position, individual joint positions and the Free Drive mode can be controlled from the GUI running simultaneously. It also displays the current end effector position, orientation ( in intuitive Euler angles as well as quaternions) and joint positions.
+
+### API
+
+#### easyUR.py
+
+#### ur_rtde.py
+
+##### Published topics
+	- ur_pose 
+	- ur_joints
+##### Subscribed topics
+	- ur_servo_cmd
+
+##### Services
+	- ur_mode_cmd
+	- ur_speed_cmd
+	- ur_stop_cmd
+	- ur_acceleration_cmd
+	- ur_pose_cmd
+	- ur_joints_cmd
+	- ur_joint_acceleration_cmd
+	- ur_joint_speed_cmd
+
