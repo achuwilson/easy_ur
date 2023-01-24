@@ -102,7 +102,7 @@ robot.set_joint_positions(next_q)
 ### Example servoing
 
 Servoing mode enables to send end effector poses in real-time to the robot controller.
-This poses are then used in the high speed internal control loop of the robot. 
+This poses are then used in the high speed internal control loop of the robot. Play around with t_delay( not higher than 0.1s) and interpolation distance to get more intuition.
 
  
 
@@ -127,6 +127,7 @@ num_points = int(dist/interp_distance)
 
 #generate a linear trajectory of points which are spread apart at interpolation distance
 # between the start and end points
+
 lin_path = np.linspace(current_position,next_position,num_points)
 
 step_count=0

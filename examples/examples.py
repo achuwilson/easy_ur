@@ -92,6 +92,7 @@ print("FREEDRIVE MODE OFF")
 ################################ SERVOING #################################
 print("SERVO MODE ON")
 #get current pos
+#play around with t_delay and the interpolation distance
 current_position, current_orientation = robot.get_pose()
 next_position = [current_position[0]+0.1, current_position[1], current_position[2]]
 
