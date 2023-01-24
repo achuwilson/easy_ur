@@ -17,7 +17,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--ip", default = "192.168.1.12")
 args = parser.parse_args()
 
-print(" Trying to connect to Robot at IP:  ", args.ip)
+print("Trying to connect to Robot at IP:  ", args.ip)
 
 rospy.init_node("UR_RTDE")
 

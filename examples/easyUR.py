@@ -106,7 +106,7 @@ class UR:
             print("Set Acceleration Failed")
             return False
     
-     def set_joint_speed(self, speed):
+    def set_joint_speed(self, speed):
         rospy.wait_for_service('/ur_joint_speed_cmd')
         try:
             service = rospy.ServiceProxy('/ur_joint_speed_cmd', SetSpeed)
