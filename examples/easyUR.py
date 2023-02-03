@@ -14,7 +14,7 @@ import signal
 
 class UR:
     def __init__(self):
-        rospy.init_node("easy_ur")
+        rospy.init_node("easy_ur", anonymous=True)
 
 
         self.cur_pos = PoseStamped()
